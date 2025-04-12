@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Card Score Tracker by Choto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B0000;
+            --secondary: #1E1E1E;
+            --background: #F8F1E5;
+            --text: #2C2C2C;
+            --accent: #5D4037;
+            --highlight: #D4AF37;
+            --white: #FFFFFF;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --border: 1px solid rgba(0, 0, 0, 0.1);
+            --tap-target: 44px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/cardboard-flat.png');
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: var(--border);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/diagmonds-light.png');
+            opacity: 0.1;
+        }
+        
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+        
+        .header p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            position: relative;
+        }
+        
+        .brand-logo {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--highlight);
+            display: inline-block;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .setup-section, .game-section {
+            padding: 1rem;
+        }
+        
+        .setup-section.collapsed {
+            padding: 0.75rem;
+        }
+        
+        .setup-section.collapsed .player-inputs,
+        .setup-section.collapsed .game-settings,
+        .setup-section.collapsed #startGame {
+            display: none;
+        }
+        
+        .setup-section.collapsed h2 {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem 0;
+        }
+        
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .player-inputs, .game-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: var(--accent);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+            font-family: 'Roboto', sans-serif;
+            height: var(--tap-target);
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+        }
+        
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+            margin-top: 0.5rem;
+            height: var(--tap-target);
+            min-width: var(--tap-target);
+        }
+        
+        button:hover, button:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #3E3E3E);
+        }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), #8D6E63);
+        }
+        
+        .btn-highlight {
+            background: linear-gradient(135deg, var(--highlight), #FFD700);
+            color: var(--secondary);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+        }
+        
+        .scorecard-container {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            background-color: white;
+            border: var(--border);
+            -webkit-overflow-scrolling: touch;
+            max-width: 100vw;
+            margin-left: -1rem;
+            margin-right: -1rem;
+            padding: 0 1rem;
+        }
+        
+        .scorecard {
+            min-width: 100%;
+            width: auto;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+        
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 0.5rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            min-width: 60px;
+        }
+        
+        th {
+            background: linear-gradient(to bottom, var(--primary), #A52A2A);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        
+        .round-number {
+            background-color: rgba(30, 30, 30, 0.05);
+            font-family: 'Montserrat', sans-serif;
+            color: var(--secondary);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        
+        .player-name {
+            background: linear-gradient(to right, var(--secondary), #3E3E3E);
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        
+        .current-round {
+            background-color: var(--highlight);
+            color: var(--secondary);
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.85rem;
+            height: var(--tap-target);
+            min-height: var(--tap-target);
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"]:focus {
+            border-color: var(--highlight);
+        }
+        
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .round-indicator {
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+        }
+        
+        .round-indicator i {
+            color: var(--highlight);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .current-round-input {
+            border: 2px solid var(--highlight) !important;
+            font-weight: bold;
+        }
+        
+        .round-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            gap: 0.5rem;
+        }
+        
+        .player-totals {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        
+        .player-total {
+            background: rgba(30, 30, 30, 0.1);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .player-total span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+        
+        .player-total .total-value {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* Round visibility styles */
+        .round-row {
+            display: none;
+        }
+        
+        .round-row.visible {
+            display: table-row;
+        }
+        
+        .round-row.current-round {
+            display: table-row;
+            background-color: rgba(212, 175, 55, 0.1);
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 480px) {
+            html {
+                font-size: 14px;
+            }
+            
+            .header {
+                padding: 0.75rem;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .header p {
+                font-size: 0.8rem;
+            }
+            
+            .setup-section, .game-section {
+                padding: 0.75rem;
+            }
+            
+            .player-inputs, .game-settings {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .player-totals {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            th, td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.75rem;
+            }
+            
+            input[type="number"] {
+                padding: 0.25rem;
+                font-size: 0.8rem;
+            }
+            
+            .scorecard-container {
+                margin-left: -0.75rem;
+                margin-right: -0.75rem;
+                padding: 0 0.75rem;
+            }
+            
+            .round-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* Animation for game section */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .game-section {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Touch-friendly elements */
+        .touch-optimized {
+            touch-action: manipulation;
+        }
+        
+        /* Prevent zoom on input focus */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+        
+        /* Loading spinner */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="brand-logo">♠️ ♣️ ♥️ ♦️</div>
+            <h1>CARD SCORE TRACKER BY CHOTO</h1>
+            <p>Track your card game scores</p>
+        </div>
+        
+        <div class="setup-section card">
+            <h2><i class="fas fa-cog"></i> Game Setup</h2>
+            
+            <div class="player-inputs">
+                <div class="input-group">
+                    <label for="player1"><i class="fas fa-user"></i> Player 1</label>
+                    <input type="text" id="player1" placeholder="Name" class="touch-optimized">
+                </div>
+                <div class="input-group">
+                    <label for="player2"><i class="fas fa-user"></i> Player 2</label>
+                    <input type="text" id="player2" placeholder="Name" class="touch-optimized">
+                </div>
+                <div class="input-group">
+                    <label for="player3"><i class="fas fa-user"></i> Player 3</label>
+                    <input type="text" id="player3" placeholder="Name" class="touch-optimized">
+                </div>
+                <div class="input-group">
+                    <label for="player4"><i class="fas fa-user"></i> Player 4</label>
+                    <input type="text" id="player4" placeholder="Name" class="touch-optimized">
+                </div>
+                <div class="input-group">
+                    <label for="player5"><i class="fas fa-user"></i> Player 5</label>
+                    <input type="text" id="player5" placeholder="Name" class="touch-optimized">
+                </div>
+            </div>
+            
+            <div class="game-settings">
+                <div class="input-group">
+                    <label for="rounds"><i class="fas fa-flag"></i> Rounds</label>
+                    <select id="rounds" class="touch-optimized">
+                        <option value="10">10 Rounds</option>
+                        <option value="15">15 Rounds</option>
+                        <option value="20">20 Rounds</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="startGame" class="btn-accent touch-optimized">
+                <i class="fas fa-play"></i> Start Game
+            </button>
+        </div>
+        
+        <div class="game-section card" id="gameSection" style="display: none;">
+            <div class="round-indicator touch-optimized">
+                <i class="fas fa-arrow-alt-circle-right"></i>
+                <span id="currentRoundDisplay">Round 1 of 10</span>
+            </div>
+            
+            <h2><i class="fas fa-table"></i> Scorecard</h2>
+            <div class="scorecard-container touch-optimized">
+                <table class="scorecard" id="scorecard">
+                    <!-- Scorecard will be generated here -->
+                </table>
+            </div>
+            
+            <div id="playerTotals" class="player-totals">
+                <!-- Player totals will be generated here -->
+            </div>
+            
+            <div id="roundActionsContainer" class="round-actions">
+                <!-- Round navigation buttons will be placed here -->
+            </div>
+            
+            <div class="actions">
+                <button id="calculateTotals" class="btn-highlight touch-optimized">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+                <button id="exportPDF" class="btn-accent touch-optimized">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button id="newGame" class="btn-secondary touch-optimized">
+                    <i class="fas fa-redo"></i> New Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const startGameBtn = document.getElementById('startGame');
+            const newGameBtn = document.getElementById('newGame');
+            const exportPDFBtn = document.getElementById('exportPDF');
+            const calculateTotalsBtn = document.getElementById('calculateTotals');
+            const gameSection = document.getElementById('gameSection');
+            const scorecard = document.getElementById('scorecard');
+            const currentRoundDisplay = document.getElementById('currentRoundDisplay');
+            const setupSection = document.querySelector('.setup-section');
+            const roundActionsContainer = document.getElementById('roundActionsContainer');
+            const playerTotalsContainer = document.getElementById('playerTotals');
+            
+            // Game state
+            let players = [];
+            let rounds = 10;
+            let currentRound = 1;
+            let scores = {};
+            
+            // Local storage keys
+            const STORAGE_KEY = 'cardScoreTracker';
+            
+            // Load game data from localStorage if available
+            function loadGameData() {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    try {
+                        const gameData = JSON.parse(savedData);
+                        players = gameData.players || [];
+                        rounds = gameData.rounds || 10;
+                        currentRound = gameData.currentRound || 1;
+                        scores = gameData.scores || {};
+                        
+                        // Fill in player names in the setup form
+                        players.forEach((player, index) => {
+                            if (index < 5) {
+                                document.getElementById(`player${index + 1}`).value = player;
+                            }
+                        });
+                        
+                        // Set rounds in the form
+                        document.getElementById('rounds').value = rounds.toString();
+                        
+                        // Show game section if a game was in progress
+                        if (players.length > 0) {
+                            setupSection.classList.add('collapsed');
+                            gameSection.style.display = 'block';
+                            updateRoundDisplay();
+                            generateScorecard();
+                            updatePlayerTotals();
+                        }
+                        
+                        return true;
+                    } catch (error) {
+                        console.error('Error loading saved game data:', error);
+                        return false;
+                    }
+                }
+                return false;
+            }
+            
+            // Save game data to localStorage
+            function saveGameData() {
+                const gameData = {
+                    players,
+                    rounds,
+                    currentRound,
+                    scores
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(gameData));
+            }
+            
+            // Try to load saved game data
+            loadGameData();
+            
+            // Initialize the game
+            startGameBtn.addEventListener('click', function() {
+                // Get player names
+                players = [];
+                for (let i = 1; i <= 5; i++) {
+                    const playerName = document.getElementById(`player${i}`).value.trim();
+                    if (playerName) {
+                        players.push(playerName);
+                    }
+                }
+                
+                if (players.length === 0) {
+                    alert('Please enter at least one player name');
+                    return;
+                }
+                
+                // Get number of rounds
+                rounds = parseInt(document.getElementById('rounds').value);
+                currentRound = 1;
+                updateRoundDisplay();
+                
+                // Initialize scores with empty values
+                scores = {};
+                players.forEach(player => {
+                    scores[player] = {
+                        rounds: Array(rounds).fill(''),
+                        total: 0
+                    };
+                });
+                
+                // Generate scorecard
+                generateScorecard();
+                updatePlayerTotals();
+                
+                // Collapse setup section
+                setupSection.classList.add('collapsed');
+                setupSection.querySelector('h2').addEventListener('click', function() {
+                    setupSection.classList.remove('collapsed');
+                });
+                
+                // Show game section
+                gameSection.style.display = 'block';
+                
+                // Save game data
+                saveGameData();
+                
+                // Scroll to game section
+                gameSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // New game button
+            newGameBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to start a new game? All current scores will be lost.')) {
+                    gameSection.style.display = 'none';
+                    setupSection.classList.remove('collapsed');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Reset form
+                    for (let i = 1; i <= 5; i++) {
+                        document.getElementById(`player${i}`).value = '';
+                    }
+                    document.getElementById('rounds').value = '10';
+                    
+                    // Clear game data from localStorage
+                    localStorage.removeItem(STORAGE_KEY);
+                    
+                    // Reset game state variables
+                    players = [];
+                    rounds = 10;
+                    currentRound = 1;
+                    scores = {};
+                }
+            });
+            
+            // Export to PDF
+            exportPDFBtn.addEventListener('click', async function() {
+                // Show loading state
+                const originalHTML = exportPDFBtn.innerHTML;
+                exportPDFBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                exportPDFBtn.disabled = true;
+                
+                try {
+                    // Check if jsPDF is loaded
+                    if (typeof window.jspdf === 'undefined') {
+                        // Wait a bit if library is still loading
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        if (typeof window.jspdf === 'undefined') {
+                            throw new Error('PDF library failed to load. Please check your internet connection.');
+                        }
+                    }
+                    
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    // Calculate totals for all players
+                    players.forEach(player => {
+                        scores[player].total = scores[player].rounds.reduce((sum, score) => {
+                            return sum + (score === '' ? 0 : parseInt(score));
+                        }, 0);
+                    });
+                    
+                    // Determine game results
+                    const playerTotals = Object.entries(scores).map(([player, data]) => ({
+                        player,
+                        total: data.total
+                    }));
+                    
+                    // Sort by total score (ascending)
+                    playerTotals.sort((a, b) => a.total - b.total);
+                    
+                    // Find unique scores to handle ties
+                    const uniqueScores = [...new Set(playerTotals.map(p => p.total))];
+                    uniqueScores.sort((a, b) => a - b);
+                    
+                    // Determine winners, losers and draws
+                    const winners = playerTotals.filter(p => p.total === uniqueScores[0]);
+                    const losers = playerTotals.filter(p => p.total === uniqueScores[uniqueScores.length - 1]);
+                    const draws = playerTotals.filter(p => !winners.includes(p) && !losers.includes(p));
+                    
+                    // Set document properties
+                    doc.setProperties({
+                        title: 'Card Game Results',
+                        subject: 'Game Score Summary',
+                        author: 'Card Score Tracker by Choto',
+                        keywords: 'card, game, scores, results',
+                        creator: 'Card Score Tracker'
+                    });
+                    
+                    // Add decorative header
+                    doc.setFillColor(139, 0, 0); // Dark red
+                    doc.rect(0, 0, doc.internal.pageSize.width, 15, 'F');
+                    
+                    // Add title with styling
+                    doc.setFontSize(16);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('CARD GAME RESULTS', doc.internal.pageSize.width / 2, 10, { align: 'center' });
+                    
+                    // Add game summary section in a compact format
+                    doc.setFontSize(8);
+                    doc.setTextColor(80, 80, 80);
+                    doc.text(`Game: ${new Date().toLocaleDateString()} | Rounds: ${rounds} | Players: ${players.join(', ')}`, doc.internal.pageSize.width / 2, 20, { align: 'center' });
+                    
+                    // Add scorecard table with enhanced styling
+                    const headers = ['Round', ...players];
+                    const data = Array.from({ length: rounds }, (_, i) => {
+                        const roundNum = i + 1;
+                        // Remove round total calculation as we're not showing the total column
+                        return [roundNum, ...players.map(player => scores[player].rounds[i] || '-')];
+                    });
+                    
+                    // Add totals row with different styling (without the empty column at the end)
+                    data.push(['TOTAL', ...players.map(player => scores[player].total)]);
+                    
+                    doc.autoTable({
+                        head: [headers],
+                        body: data,
+                        startY: 25,
+                        styles: {
+                            fontSize: 8,
+                            cellPadding: 2,
+                            lineColor: [200, 200, 200],
+                            lineWidth: 0.1,
+                            font: 'helvetica',
+                            overflow: 'linebreak',
+                            halign: 'center'
+                        },
+                        headStyles: {
+                            fillColor: [70, 70, 70],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold',
+                            halign: 'center'
+                        },
+                        bodyStyles: {
+                            fillColor: [255, 255, 255],
+                            textColor: [50, 50, 50]
+                        },
+                        alternateRowStyles: {
+                            fillColor: [245, 245, 245]
+                        },
+                        columnStyles: {
+                            0: { fontStyle: 'bold', fillColor: [230, 230, 230] },
+                            [headers.length - 1]: { fontStyle: 'bold', fillColor: [230, 230, 230] }
+                        },
+                        margin: { top: 5, left: 5, right: 5 },
+                        tableWidth: 'auto'
+                    });
+                    
+                    // Get the final Y position after the table
+                    const finalY = doc.autoTable.previous.finalY + 5;
+                    
+                    // Create a compact results section
+                    // Create a 3-column layout for winners, draws, and losers
+                    const colWidth = (doc.internal.pageSize.width - 10) / 3;
+                    
+                    // Winners column (left)
+                    doc.setFillColor(0, 128, 0); // Green
+                    doc.rect(5, finalY, colWidth - 2, 10, 'F');
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('🏆 WINNERS', 5 + (colWidth - 2) / 2, finalY + 6, { align: 'center' });
+                    
+                    let winnerY = finalY + 12;
+                    winners.forEach(winner => {
+                        doc.setFontSize(8);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(0, 100, 0); // Dark green
+                        doc.text(`${winner.player}: ${winner.total}`, 5 + (colWidth - 2) / 2, winnerY, { align: 'center' });
+                        winnerY += 5;
+                    });
+                    
+                    // Draws column (middle)
+                    doc.setFillColor(0, 102, 204); // Blue
+                    doc.rect(5 + colWidth, finalY, colWidth - 2, 10, 'F');
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('🤝 DRAWS', 5 + colWidth + (colWidth - 2) / 2, finalY + 6, { align: 'center' });
+                    
+                    let drawY = finalY + 12;
+                    if (draws.length > 0) {
+                        draws.forEach(draw => {
+                            doc.setFontSize(8);
+                            doc.setFont('helvetica', 'normal');
+                            doc.setTextColor(0, 0, 139); // Dark blue
+                            doc.text(`${draw.player}: ${draw.total}`, 5 + colWidth + (colWidth - 2) / 2, drawY, { align: 'center' });
+                            drawY += 5;
+                        });
+                    } else {
+                        doc.setFontSize(8);
+                        doc.setFont('helvetica', 'italic');
+                        doc.setTextColor(100, 100, 100);
+                        doc.text('No draws', 5 + colWidth + (colWidth - 2) / 2, drawY, { align: 'center' });
+                    }
+                    
+                    // Losers column (right)
+                    doc.setFillColor(178, 34, 34); // Red
+                    doc.rect(5 + colWidth * 2, finalY, colWidth - 2, 10, 'F');
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('😢 LOSERS', 5 + colWidth * 2 + (colWidth - 2) / 2, finalY + 6, { align: 'center' });
+                    
+                    let loserY = finalY + 12;
+                    losers.forEach(loser => {
+                        doc.setFontSize(8);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(139, 0, 0); // Dark red
+                        doc.text(`${loser.player}: ${loser.total}`, 5 + colWidth * 2 + (colWidth - 2) / 2, loserY, { align: 'center' });
+                        loserY += 5;
+                    });
+                    
+                    // Add decorative footer
+                    const footerY = doc.internal.pageSize.height - 8;
+                    doc.setFillColor(139, 0, 0); // Dark red
+                    doc.rect(0, footerY, doc.internal.pageSize.width, 8, 'F');
+                    
+                    doc.setFontSize(6);
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('Generated by Card Score Tracker by Choto', doc.internal.pageSize.width / 2, footerY + 5, { align: 'center' });
+                    
+                    // Save the PDF
+                    doc.save(`CardScores_${new Date().toLocaleDateString().replace(/\//g, '-')}.pdf`);
+                    
+                } catch (error) {
+                    console.error('PDF generation error:', error);
+                    alert('Error generating PDF: ' + (error.message || 'Please try again later.'));
+                } finally {
+                    // Restore button state
+                    exportPDFBtn.innerHTML = originalHTML;
+                    exportPDFBtn.disabled = false;
+                }
+            });
+            
+            // Function to determine game results
+            function determineGameResults(playerScores) {
+                // Convert scores object to array of {player, total} objects
+                const playerTotals = Object.entries(playerScores).map(([player, data]) => ({
+                    player,
+                    total: data.total
+                }));
+                
+                // Sort by total score (ascending)
+                playerTotals.sort((a, b) => a.total - b.total);
+                
+                // Find unique scores to handle ties
+                const uniqueScores = [...new Set(playerTotals.map(p => p.total))];
+                uniqueScores.sort((a, b) => a - b);
+                
+                // Determine winners (players with the two lowest unique scores)
+                const winners = playerTotals.filter(p => p.total <= uniqueScores[1]);
+                
+                // Determine losers (players with the three highest unique scores)
+                const losers = playerTotals.filter(p => {
+                    const loserScoreThreshold = uniqueScores[Math.max(0, uniqueScores.length - 3)];
+                    return p.total >= loserScoreThreshold;
+                });
+                
+                // Determine draws (players with scores between winners and losers)
+                const draws = playerTotals.filter(p => {
+                    return !winners.includes(p) && !losers.includes(p);
+                });
+                
+                // Color code the results in PDF with enhanced styling
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                
+                // Winners section with green background
+                doc.setTextColor(255, 255, 255);
+                doc.setFillColor(0, 128, 0);
+                doc.rect(15, 55, 180, 20, 'F');
+                doc.text('🏆 Winners (Lowest Scores): ' + winners.join(', '), 20, 60);
+                
+                // Losers section with red background
+                doc.setFillColor(255, 0, 0);
+                doc.rect(15, 75, 180, 20, 'F');
+                doc.text('💀 Losers (Highest Scores): ' + losers.join(', '), 20, 80);
+                
+                // Draws section with blue background
+                if (draws.length) {
+                    doc.setFillColor(0, 0, 255);
+                    doc.rect(15, 95, 180, 20, 'F');
+                    doc.text('🤝 Draws: ' + draws.join(', '), 20, 100);
+                }
+                
+                return {
+                    winners,
+                    losers,
+                    draws
+                };
+            }
+            
+            // Function to generate styled PDF
+            function generateStyledPDF(doc, scores, results) {
+                // Set document properties
+                doc.setProperties({
+                    title: 'Card Game Results',
+                    subject: 'Game Score Summary',
+                    author: 'Card Score Tracker by Choto',
+                    keywords: 'card, game, scores, results',
+                    creator: 'Card Score Tracker'
+                });
+
+                // Add decorative header
+                doc.setFillColor(139, 0, 0); // Dark red
+                doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
+                
+                // Add title with styling
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(255, 255, 255);
+                doc.text('CARD GAME RESULTS', doc.internal.pageSize.width / 2, 25, { align: 'center' });
+
+                // Add game summary section
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Game played on: ${new Date().toLocaleString()}`, 15, 50);
+                doc.text(`Total rounds: ${rounds}`, 15, 60);
+                doc.text(`Players: ${players.join(', ')}`, 15, 70);
+
+                // Add scorecard table with enhanced styling
+                const headers = ['Round', ...players];
+                const data = Array.from({ length: rounds }, (_, i) => {
+                    const roundNum = i + 1;
+                    return [roundNum, ...players.map(player => scores[player].rounds[i] || '-')];
+                });
+
+                // Add totals row with different styling
+                data.push(['TOTAL', ...players.map(player => scores[player].total)]);
+
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 80,
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 5,
+                        lineColor: [200, 200, 200],
+                        lineWidth: 0.25,
+                        font: 'helvetica'
+                    },
+                    headStyles: {
+                        fillColor: [70, 70, 70],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    bodyStyles: {
+                        fillColor: [255, 255, 255],
+                        textColor: [50, 50, 50]
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', fillColor: [230, 230, 230] }
+                    },
+                    margin: { top: 10 }
+                });
+
+                // Add results section with visual separation
+                const startY = doc.autoTable.previous.finalY + 20;
+                
+                // Winners section with gold background
+                if (results.winners.length > 0) {
+                    doc.setFillColor(255, 215, 0); // Gold
+                    doc.rect(15, startY, doc.internal.pageSize.width - 30, 20, 'F');
+                    
+                    doc.setFontSize(16);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('🏆 WINNERS 🏆', doc.internal.pageSize.width / 2, startY + 14, { align: 'center' });
+                    
+                    let currentY = startY + 30;
+                    results.winners.forEach(winner => {
+                        doc.setFontSize(12);
+                        doc.setTextColor(0, 100, 0); // Dark green
+                        doc.text(`${winner.player}`, 30, currentY);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`Score: ${winner.total}`, doc.internal.pageSize.width - 30, currentY, { align: 'right' });
+                        currentY += 10;
+                    });
+                }
+
+                // Draws section with light blue background
+                if (results.draws.length > 0) {
+                    const drawY = startY + 30 + (results.winners.length * 10) + 10;
+                    doc.setFillColor(173, 216, 230); // Light blue
+                    doc.rect(15, drawY, doc.internal.pageSize.width - 30, 20, 'F');
+                    
+                    doc.setFontSize(16);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('🤝 DRAWS 🤝', doc.internal.pageSize.width / 2, drawY + 14, { align: 'center' });
+                    
+                    let currentY = drawY + 30;
+                    results.draws.forEach(draw => {
+                        doc.setFontSize(12);
+                        doc.setTextColor(0, 0, 139); // Dark blue
+                        doc.text(`${draw.player}`, 30, currentY);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`Score: ${draw.total}`, doc.internal.pageSize.width - 30, currentY, { align: 'right' });
+                        currentY += 10;
+                    });
+                }
+
+                // Losers section with light red background
+                if (results.losers.length > 0) {
+                    let losersY = startY + 30 + (results.winners.length * 10) + 10;
+                    if (results.draws.length > 0) {
+                        losersY += 30 + (results.draws.length * 10);
+                    }
+                    
+                    doc.setFillColor(255, 182, 193); // Light red
+                    doc.rect(15, losersY, doc.internal.pageSize.width - 30, 20, 'F');
+                    
+                    doc.setFontSize(16);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('🎲 BETTER LUCK NEXT TIME 🎲', doc.internal.pageSize.width / 2, losersY + 14, { align: 'center' });
+                    
+                    let currentY = losersY + 30;
+                    results.losers.forEach(loser => {
+                        doc.setFontSize(12);
+                        doc.setTextColor(139, 0, 0); // Dark red
+                        doc.text(`${loser.player}`, 30, currentY);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`Score: ${loser.total}`, doc.internal.pageSize.width - 30, currentY, { align: 'right' });
+                        currentY += 10;
+                    });
+                }
+
+                // Add decorative footer
+                const footerY = doc.internal.pageSize.height - 20;
+                doc.setFillColor(139, 0, 0); // Dark red
+                doc.rect(0, footerY, doc.internal.pageSize.width, 20, 'F');
+                
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                doc.text('Generated by Card Score Tracker by Choto', doc.internal.pageSize.width / 2, footerY + 14, { align: 'center' });
+
+                // Add page numbers
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10);
+                }
+            }
+            
+            // Generate the scorecard HTML
+            function generateScorecard() {
+                let html = `
+                    <thead>
+                        <tr>
+                            <th>Round</th>
+                `;
+                
+                // Add player headers
+                players.forEach(player => {
+                    html += `<th class="player-name">${player}</th>`;
+                });
+                
+                html += `
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                // Add round rows
+                for (let i = 1; i <= rounds; i++) {
+                    const isCurrentRound = i === currentRound;
+                    const isPastRound = i < currentRound;
+                    const roundClass = isCurrentRound ? 'current-round' : '';
+                    
+                    html += `
+                        <tr class="round-row ${isCurrentRound ? 'current-round' : ''}" id="round-${i}">
+                            <td class="round-number ${roundClass}">${i}</td>
+                    `;
+                    
+                    // Add player scores
+                    players.forEach(player => {
+                        const scoreValue = scores[player].rounds[i-1] === '' ? '' : scores[player].rounds[i-1];
+                        
+                        html += `
+                            <td>
+                                <input type="number" min="0" max="8" 
+                                       data-player="${player}" 
+                                       data-round="${i}" 
+                                       value="${scoreValue}"
+                                       ${!isCurrentRound ? 'disabled' : ''}
+                                       ${isCurrentRound ? 'class="current-round-input touch-optimized"' : 'class="touch-optimized"'}
+                                       placeholder="-">
+                            </td>
+                        `;
+                    });
+                    
+                    html += `</tr>`;
+                }
+                
+                // Add totals row
+                html += `
+                        <tr>
+                            <td class="player-name">Total</td>
+                `;
+                
+                players.forEach(player => {
+                    html += `<td class="total-score">${scores[player].total}</td>`;
+                });
+                
+                html += `
+                        </tr>
+                    </tbody>
+                `;
+                
+                scorecard.innerHTML = html;
+                
+                // Add event listeners to score inputs
+                document.querySelectorAll('#scorecard input[type="number"]').forEach(input => {
+                    input.addEventListener('change', updateScore);
+                    input.addEventListener('focus', function() {
+                        this.select();
+                    });
+                });
+                
+                // Create or update round navigation buttons
+                updateRoundButtons();
+            }
+            
+            // Update player totals display
+            function updatePlayerTotals() {
+                let html = '';
+                players.forEach(player => {
+                    html += `
+                        <div class="player-total touch-optimized">
+                            <span>${player}</span>
+                            <div class="total-value">${scores[player].total}</div>
+                        </div>
+                    `;
+                });
+                playerTotalsContainer.innerHTML = html;
+            }
+            
+            // Update score when input changes
+            function updateScore(e) {
+                const input = e.target;
+                const player = input.dataset.player;
+                const round = parseInt(input.dataset.round);
+                let value = input.value === '' ? '' : parseInt(input.value);
+                
+                // Validate input (0-8 or empty)
+                if (value !== '') {
+                    if (isNaN(value)) value = '';
+                    else if (value < 0) value = 0;
+                    else if (value > 8) value = 8;
+                    input.value = value;
+                }
+                
+                // Update score
+                scores[player].rounds[round-1] = value;
+                
+                // Save game data after score update
+                saveGameData();
+            }
+            
+            // Calculate totals for all players
+            function calculateTotals() {
+                players.forEach(player => {
+                    scores[player].total = scores[player].rounds.reduce((sum, score) => {
+                        return sum + (score === '' ? 0 : parseInt(score));
+                    }, 0);
+                });
+                
+                // Update the totals row in the table
+                const totalCells = document.querySelectorAll('tr:last-child td:not(:first-child)');
+                players.forEach((player, index) => {
+                    if (totalCells[index]) {
+                        totalCells[index].textContent = scores[player].total;
+                    }
+                });
+                
+                // Update the player totals display
+                updatePlayerTotals();
+                
+                // Save game data after calculating totals
+                saveGameData();
+                
+                // Show notification
+                alert('Scores calculated!');
+            }
+            
+            // Calculate totals button
+            calculateTotalsBtn.addEventListener('click', calculateTotals);
+            
+            // Update round navigation buttons
+            function updateRoundButtons() {
+                roundActionsContainer.innerHTML = '';
+                
+                // Previous Round button (only show if not on first round)
+                if (currentRound > 1) {
+                    const prevRoundBtn = document.createElement('button');
+                    prevRoundBtn.className = 'btn-info touch-optimized';
+                    prevRoundBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Previous Round';
+                    prevRoundBtn.addEventListener('click', goToPreviousRound);
+                    roundActionsContainer.appendChild(prevRoundBtn);
+                }
+                
+                // Next Round button (only show if not on last round)
+                if (currentRound < rounds) {
+                    const nextRoundBtn = document.createElement('button');
+                    nextRoundBtn.className = 'btn-accent touch-optimized';
+                    nextRoundBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Next Round';
+                    nextRoundBtn.addEventListener('click', goToNextRound);
+                    roundActionsContainer.appendChild(nextRoundBtn);
+                }
+            }
+            
+            // Go to previous round
+            function goToPreviousRound() {
+                if (currentRound > 1) {
+                    // Hide current round
+                    const currentRoundRow = document.getElementById(`round-${currentRound}`);
+                    if (currentRoundRow) {
+                        currentRoundRow.classList.remove('current-round');
+                    }
+                    
+                    // Decrement round counter
+                    currentRound--;
+                    updateRoundDisplay();
+                    
+                    // Show the new current round
+                    const newRoundRow = document.getElementById(`round-${currentRound}`);
+                    if (newRoundRow) {
+                        newRoundRow.classList.add('current-round');
+                    }
+                    
+                    // Regenerate scorecard to update inputs
+                    generateScorecard();
+                    
+                    // Save game data after changing round
+                    saveGameData();
+                    
+                    // Scroll to top of scorecard
+                    scorecard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            // Go to next round
+            function goToNextRound() {
+                // First calculate totals for current round
+                calculateTotals();
+                
+                if (currentRound < rounds) {
+                    // Hide current round
+                    const currentRoundRow = document.getElementById(`round-${currentRound}`);
+                    if (currentRoundRow) {
+                        currentRoundRow.classList.remove('current-round');
+                    }
+                    
+                    // Increment round counter
+                    currentRound++;
+                    updateRoundDisplay();
+                    
+                    // Show the new current round
+                    const newRoundRow = document.getElementById(`round-${currentRound}`);
+                    if (newRoundRow) {
+                        newRoundRow.classList.add('current-round');
+                    }
+                    
+                    // Regenerate scorecard to update inputs
+                    generateScorecard();
+                    updatePlayerTotals();
+                    
+                    // Save game data after changing round
+                    saveGameData();
+                    
+                    // Scroll to top of scorecard
+                    scorecard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            // Update round display
+            function updateRoundDisplay() {
+                currentRoundDisplay.textContent = `Round ${currentRound} of ${rounds}`;
+            }
+        });
+    </script>
+</body>
+</html>
